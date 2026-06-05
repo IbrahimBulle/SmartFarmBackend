@@ -2,9 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
@@ -41,7 +43,9 @@ func main() {
 
 	r.Post("/register", authHandler.Register)
 	r.Post("/login", authHandler.Login)
-
+r.Get("/health",func(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w,"very healthy")
+})
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Auth)
 
@@ -57,7 +61,10 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-
+go func(){
+	_,_=http.Get("https://smartfarmbackend-ypqi.onrender.com/health")
+	time.Sleep(10*time.Minute)
+}()
 	log.Printf("server running on :%s", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
