@@ -16,6 +16,7 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id int64) (User, error)
 	ListFarmsByUser(ctx context.Context, userID int64) ([]Farm, error)
+	UpdateFarm(ctx context.Context, arg UpdateFarmParams) (Farm, error)
 }
 
 var _ Querier = (*Queries)(nil)

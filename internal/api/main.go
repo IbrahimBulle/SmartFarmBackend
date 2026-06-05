@@ -54,6 +54,7 @@ r.Get("/health",func(w http.ResponseWriter, r *http.Request) {
 		r.Post("/farms", farmHandler.CreateFarm)
 		r.Get("/farms", farmHandler.ListFarms)
 		r.Get("/farms/{id}", farmHandler.GetFarm)
+		r.Put("/farms/{id}", farmHandler.UpdateFarm)
 		r.Delete("/farms/{id}", farmHandler.DeleteFarm)
 	})
 
@@ -63,7 +64,7 @@ r.Get("/health",func(w http.ResponseWriter, r *http.Request) {
 	}
 go func(){
 	_,_=http.Get("https://smartfarmbackend-ypqi.onrender.com/health")
-	time.Sleep(10*time.Minute)
+	time.Sleep(5*time.Minute)
 }()
 	log.Printf("server running on :%s", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))

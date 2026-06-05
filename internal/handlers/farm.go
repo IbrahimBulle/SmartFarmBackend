@@ -106,6 +106,49 @@ func (h *FarmHandler) GetFarm(
 	json.NewEncoder(w).Encode(farm)
 }
 
+func (h *FarmHandler) UpdateFarm(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	userID := r.Context().
+		Value(middleware.UserIDKey).(int64)
+	id, _ := strconv.ParseInt(
+		chi.URLParam(r, "id"),
+		10,
+		64,
+	)
+
+	var req CreateFarmRequest
+
+	if err := json.NewDecoder(r.Body).
+		Decode(&req); err != nil {
+		http.Error(w, "invalid body", 400)
+		return
+	}
+
+	farm, err := h.q.UpdateFarm(
+		r.Context(),
+		db.UpdateFarmParams{
+			Name:     req.Name,
+			Location: req.Location,
+			CropType: req.CropType,
+			SizeAcres: sql.NullFloat64{
+				Float64: req.SizeAcres,
+				Valid:   true,
+			},
+			ID:     id,
+			UserID: userID,
+		},
+	)
+
+	if err != nil {
+		http.Error(w, "farm not found", 404)
+		return
+	}
+
+	json.NewEncoder(w).Encode(farm)
+}
+
 func (h *FarmHandler) DeleteFarm(
 	w http.ResponseWriter,
 	r *http.Request,

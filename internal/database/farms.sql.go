@@ -121,3 +121,48 @@ func (q *Queries) ListFarmsByUser(ctx context.Context, userID int64) ([]Farm, er
 	}
 	return items, nil
 }
+
+const updateFarm = `-- name: UpdateFarm :one
+UPDATE farms
+SET
+    name = ?,
+    location = ?,
+    crop_type = ?,
+    size_acres = ?,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = ?
+  AND user_id = ?
+RETURNING id, user_id, name, location, crop_type, size_acres, created_at, updated_at
+`
+
+type UpdateFarmParams struct {
+	Name      string          `json:"name"`
+	Location  string          `json:"location"`
+	CropType  string          `json:"crop_type"`
+	SizeAcres sql.NullFloat64 `json:"size_acres"`
+	ID        int64           `json:"id"`
+	UserID    int64           `json:"user_id"`
+}
+
+func (q *Queries) UpdateFarm(ctx context.Context, arg UpdateFarmParams) (Farm, error) {
+	row := q.db.QueryRowContext(ctx, updateFarm,
+		arg.Name,
+		arg.Location,
+		arg.CropType,
+		arg.SizeAcres,
+		arg.ID,
+		arg.UserID,
+	)
+	var i Farm
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.Location,
+		&i.CropType,
+		&i.SizeAcres,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
